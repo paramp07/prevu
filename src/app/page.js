@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground p-6">
+    <div className="min-h-screen bg-gradient-to-br from-[#d8d8d8] to-[#ffe9ed] text-foreground p-6">
       <div className="max-w-md mx-auto">
         {/* Logo */}
         <div className="w-full flex justify-center">

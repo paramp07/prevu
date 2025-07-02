@@ -6,32 +6,14 @@ import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Settings } from "lucide-react";
-import Image from "next/image";
 
-const proxiedImageUrl = (url) =>
-  `/api/image-proxy?url=${encodeURIComponent(url)}`;
-
-function checkImage(url) {
-  return new Promise((resolve) => {
-    const img = new window.Image(); // explicitly use window.Image in case of scope issues
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    img.src = url;
-  });
-}
-
-async function findFirstValidImage(images) {
-  if (!images || images.length === 0) return null;
-
-  for (let i = 0; i < images.length; i++) {
-    const url = proxiedImageUrl(images[i]);
-    const valid = await checkImage(url);
-    if (valid) {
-      return url;
-    }
-  }
-
-  return null;
+function capitalizeWords(str) {
+  if (!str) return "";
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 export default function DishResults() {
@@ -41,9 +23,6 @@ export default function DishResults() {
     name: "Untitled",
     location: null,
   });
-
-  // Store the valid image URL for each dish by index
-  const [validImages, setValidImages] = useState({});
 
   const params = useParams();
   const router = useRouter();
@@ -59,7 +38,7 @@ export default function DishResults() {
     if (savedMeta) {
       const meta = JSON.parse(savedMeta);
       setRestaurant({
-        name: meta.name || "Untitled",
+        name: capitalizeWords(meta.name) || "Untitled",
         location: meta.location || null,
       });
     }
@@ -67,33 +46,9 @@ export default function DishResults() {
     setLoading(false);
   }, []);
 
-  // When dishes load, find valid images for each dish asynchronously
-  useEffect(() => {
-    async function checkImages() {
-      if (dishes.length === 0) return;
-
-      const cached = localStorage.getItem("validDishImages");
-      if (cached) {
-        setValidImages(JSON.parse(cached));
-        return;
-      }
-
-      const results = {};
-
-      for (let i = 0; i < dishes.length; i++) {
-        const validImageUrl = await findFirstValidImage(dishes[i].images);
-        results[i] = validImageUrl; // may be null
-      }
-
-      setValidImages(results);
-      localStorage.setItem("validDishImages", JSON.stringify(results));
-    }
-
-    checkImages();
-  }, [dishes]);
-
   const handleDishClick = (dishId) => {
-    router.push(`/dish-detail/${dishId}`);
+    const slug = restaurant.name.toLowerCase().replace(/\s+/g, "-");
+    router.push(`/dishes/${slug}/${dishId}`);
   };
 
   if (loading) {
@@ -157,36 +112,35 @@ export default function DishResults() {
 
         {/* Dish Grid */}
         <div className="grid grid-cols-2 gap-4">
-          {dishes.map((dish, i) => (
-            <Card
-              key={dish.id || i}
-              onClick={() => handleDishClick(dish.id || i)}
-              className="shadow-md p-0 hover:shadow-lg transition-shadow cursor-pointer group"
-            >
-              <CardContent className="p-0 mb-6">
-                {/* Image container with fixed height and hidden overflow */}
-                <div className="relative w-full h-32 overflow-hidden rounded-t-lg">
-                  <Image
-                    src={validImages[i] || "/placeholder.jpg"}
-                    alt={dish.title || "Unnamed Dish"}
-                    fill
-                    className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
-                    placeholder="blur"
-                    blurDataURL="/placeholder.jpg"
-                    sizes="(max-width: 768px) 100vw"
-                  />
-                </div>
-                <div className="p-3">
-                  <h3 className="font-semibold text-sm text-gray-800 mb-1 line-clamp-2">
-                    {dish.title || "Unnamed Dish"}
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    {dish.description || "Uncategorized"}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {dishes.map((dish, i) => {
+            const imageUrl = dish?.images?.[0] || "/placeholder.jpg";
+            return (
+              <Card
+                key={dish.id || i}
+                onClick={() => handleDishClick(dish.id || i)}
+                className="shadow-md p-0 hover:shadow-lg transition-shadow cursor-pointer group"
+              >
+                <CardContent className="p-0 mb-6">
+                  {/* Image container */}
+                  <div className="relative w-full h-32 overflow-hidden rounded-t-lg">
+                    <img
+                      src={imageUrl}
+                      alt={dish.title || "Unnamed Dish"}
+                      className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
+                    />
+                  </div>
+                  <div className="p-3">
+                    <h3 className="font-semibold text-sm text-gray-800 mb-1 line-clamp-2">
+                      {dish.title || "Unnamed Dish"}
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      {dish.description || "Uncategorized"}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         {/* Action */}
