@@ -11,17 +11,18 @@ function capitalizeWords(str) {
   if (!str) return "";
   return str
     .toLowerCase()
-    .split(" ")
+    .split(/[\s-]+/)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
-
 export default function DishResults() {
-  const [dishes, setDishes] = useState([]);
+  const [menu, setMenu] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [canLoad, setCanLoad] = useState(null);
   const [restaurant, setRestaurant] = useState({
     name: "Untitled",
     location: null,
+    image: null, // ✅ Add image field
   });
 
   const params = useParams();
@@ -32,7 +33,9 @@ export default function DishResults() {
     const savedMeta = localStorage.getItem("restaurantMeta");
 
     if (savedDishes) {
-      setDishes(JSON.parse(savedDishes));
+      const parsedMenu = JSON.parse(savedDishes);
+      setMenu(parsedMenu);
+      console.log("📦 Loaded menu JSON:", parsedMenu);
     }
 
     if (savedMeta) {
@@ -40,15 +43,19 @@ export default function DishResults() {
       setRestaurant({
         name: capitalizeWords(meta.name) || "Untitled",
         location: meta.location || null,
+        image: meta.image || null, // ✅ Load the image field
       });
+      console.log("🏷️ Restaurant meta:", meta);
     }
 
     setLoading(false);
   }, []);
 
-  const handleDishClick = (dishId) => {
-    const slug = restaurant.name.toLowerCase().replace(/\s+/g, "-");
-    router.push(`/dishes/${slug}/${dishId}`);
+  
+
+  const handleDishClick = (dishSlug) => {
+    const restaurantSlug = restaurant.name.toLowerCase().replace(/\s+/g, "-");
+    router.push(`/dishes/${restaurantSlug}/${dishSlug}`);
   };
 
   if (loading) {
@@ -97,51 +104,36 @@ export default function DishResults() {
           </Link>
         </div>
 
-        {/* Summary */}
-        <Card className="mb-6 shadow-md">
-          <CardContent className="p-4">
-            <p className="text-sm text-gray-600">
-              Found{" "}
-              <span className="font-semibold text-primary">
-                {dishes.length}
-              </span>{" "}
-              dish{dishes.length !== 1 && "es"}. Tap a card to view more.
-            </p>
-          </CardContent>
-        </Card>
+        {/* ✅ Restaurant Image */}
+        {restaurant.image && (
+          <div className="mb-6 rounded-lg overflow-hidden shadow">
+            <img
+              src={restaurant.image}
+              alt={`${restaurant.name} photo`}
+              className="w-full h-48 object-cover"
+            />
+          </div>
+        )}
 
-        {/* Dish Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          {dishes.map((dish, i) => {
-            const imageUrl = dish?.images?.[0] || "/placeholder.jpg";
-            return (
-              <Card
-                key={dish.id || i}
-                onClick={() => handleDishClick(dish.id || i)}
-                className="shadow-md p-0 hover:shadow-lg transition-shadow cursor-pointer group"
-              >
-                <CardContent className="p-0 mb-6">
-                  {/* Image container */}
-                  <div className="relative w-full h-32 overflow-hidden rounded-t-lg">
-                    <img
-                      src={imageUrl}
-                      alt={dish.title || "Unnamed Dish"}
-                      className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
-                    />
-                  </div>
-                  <div className="p-3">
-                    <h3 className="font-semibold text-sm text-gray-800 mb-1 line-clamp-2">
-                      {dish.title || "Unnamed Dish"}
-                    </h3>
-                    <p className="text-xs text-gray-500">
-                      {dish.description || "Uncategorized"}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+        {/* Organized Menu */}
+        {menu
+          .sort((a, b) => a.priority - b.priority)
+          .map((category) => (
+            <div key={category.category} className="mb-8">
+              <h2 className="text-xl font-bold text-gray-800 mb-2">
+                {category.category}
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                {category.items.map((dish, i) => (
+                  <DishCard
+                    key={dish.id || i}
+                    dish={dish}
+                    onClick={handleDishClick}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
 
         {/* Action */}
         <div className="mt-8 space-y-3">
@@ -153,5 +145,36 @@ export default function DishResults() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+function DishCard({ dish, onClick }) {
+  const imageUrl = dish?.images?.[0] || "/placeholder.jpg";
+  const dishName = dish?.name || "Unnamed Dish";
+  const description = dish?.description || "No description available";
+
+  return (
+    <Card
+      key={dish.id}
+      onClick={() => onClick(dish.slug)}
+      className="shadow-md p-0 hover:shadow-lg transition-shadow cursor-pointer group"
+    >
+      <CardContent className="p-0 mb-6">
+        <div className="relative w-full h-32 overflow-hidden rounded-t-lg">
+          <img
+            src={imageUrl}
+            alt={dishName}
+            className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
+          />
+        </div>
+        <div className="p-3">
+          <h3 className="font-semibold text-sm text-gray-800 mb-1 line-clamp-2">
+            {dishName}
+          </h3>
+          <p className="text-xs text-gray-500">{description}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

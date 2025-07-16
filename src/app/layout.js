@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`antialiased ${geistSans.className} ${geistMono.className} ${vollkorn.className} `}
+        className={`antialiased ${geistSans.className} ${geistMono.className} ${figtree.className} `}
       >
         {children}
       </body>

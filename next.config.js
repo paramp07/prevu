@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
     domains: [
       'lookaside.instagram.com',
       'alegumeaday.com',
@@ -15,7 +21,10 @@ const nextConfig = {
       'static01.nyt.com',
       'www.wikihow.com',
       'www.dvcinquirer.com',
-      'foodandjourneys.net',  // <-- add this line
+      'foodandjourneys.net', 
+      'knifeandsoul.com',
+      'boldappetite.com',
+      'cookingmydreams.com', // <-- add this line
     ],
   },
 };

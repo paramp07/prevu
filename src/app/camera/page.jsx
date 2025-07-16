@@ -44,6 +44,56 @@ export default function Camera() {
     }
   };
 
+  const checkMenuImages = async (menu) => {
+    const brokenImages = []; // ⬅️ Store broken URLs here
+
+    for (const category of menu) {
+      for (const item of category.items || []) {
+        const name = item.name || "Unnamed Dish";
+        const imageUrls = item.images || [];
+        const validImages = [];
+
+        await Promise.all(
+          imageUrls.map((url) => {
+            return new Promise((resolve) => {
+              const img = new Image();
+              img.src = url;
+
+              img.onload = () => {
+                console.log(`✅ Image loaded for "${name}": ${url}`);
+                validImages.push(url);
+                resolve();
+              };
+
+              img.onerror = () => {
+                console.warn(`❌ Broken image for "${name}": ${url}`);
+                brokenImages.push({ name, url }); // ⬅️ Save broken one
+                resolve();
+              };
+            });
+          })
+        );
+
+        item.images = validImages;
+
+        if (validImages.length === 0) {
+          console.info(`ℹ️ No valid images for "${name}"`);
+        }
+      }
+    }
+
+    // ⬇️ Log all broken URLs after checking
+    if (brokenImages.length > 0) {
+      console.group("🛑 Broken image report");
+      brokenImages.forEach(({ name, url }) =>
+        console.log(`❌ ${name}: ${url}`)
+      );
+      console.groupEnd();
+    } else {
+      console.log("🎉 All images loaded successfully!");
+    }
+  };
+
   const removeImage = (index) => {
     setSelectedImages((prev) => prev.filter((_, i) => i !== index));
   };
@@ -56,44 +106,53 @@ export default function Camera() {
     try {
       const formData = new FormData();
 
-      // Convert all base64 images to blobs first
+      // Convert base64 images to blobs
       for (let i = 0; i < selectedImages.length; i++) {
         const res = await fetch(selectedImages[i]);
         const blob = await res.blob();
         formData.append("file", blob, `image_${i}.png`);
       }
 
-      // Send form data to backend
-      const response = await fetch("http://127.0.0.1:8000/process_menu/", {
+      // Send to backend
+      const response = await fetch("http://127.0.0.1:8000/parse_menu/", {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error(`Server error: ${response.statusText}`);
+        throw new Error(
+          `Server error: ${response.status} ${response.statusText}`
+        );
       }
 
       const result = await response.json();
-      console.log("Processing result:", result);
+      console.log("✅ Processing result:", result);
 
-      const name = result.restaurant_name || "Untitled";
-      const slug = name.toLowerCase().replace(/\s+/g, "-"); // slugify
+      const restaurantName = result.restaurant_name || "Untitled";
+      const slug = restaurantName.toLowerCase().replace(/\s+/g, "-");
 
-      setRestaurantName(name);
+      // 👉 Add image checking here
+      await checkMenuImages(result.menu || []);
 
-      // ✅ Step 3: Save to localStorage
-      localStorage.setItem("finalDishes", JSON.stringify(result.menu_items));
+      // Store metadata and dishes
       localStorage.setItem(
         "restaurantMeta",
-        JSON.stringify({ name, location: result.location })
+        JSON.stringify({
+          name: restaurantName,
+          location: result.location || null,
+          image: result.image || null, // ✅ Add this line
+        })
       );
 
+      localStorage.setItem("finalDishes", JSON.stringify(result.menu || []));
+
+      setRestaurantName(restaurantName);
       setIsProcessing(false);
 
-      // ✅ Step 4: Navigate to dynamic restaurant dishes page
+      // Navigate to menu page
       router.push(`/dishes/${slug}`);
     } catch (error) {
-      console.error("Error uploading images:", error);
+      console.error("❌ Error uploading or processing images:", error);
       setIsProcessing(false);
     }
   };
