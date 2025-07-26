@@ -10,28 +10,75 @@ import {
   FaFacebook as Facebook,
   FaArrowLeft as ArrowLeft,
 } from "react-icons/fa";
+import { z } from "zod";
+import { toast } from "sonner"
+
+const registerSchema = z
+  .object({
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    const result = registerSchema.safeParse({
+      email,
+      password,
+      confirmPassword,
+    });
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+    if (!result.success) {
+      setError(result.error.issues[0].message);
       return;
     }
-
+      
     setError("");
-    console.log("Register attempt:", { email, password });
-    // Proceed with form submission logic
+    console.log("Register attempt:", result.data);
+
+    const payload = { email, password };
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        setMessage(`Error: ${errorData.detail || res.statusText}`);
+        console.log(errorData.detail);
+        setError(errorData.detail);
+        return;
+      }
+
+      const data = await res.json();
+      console.log(data);
+      setMessage(`Successfully created User object with email: ${data.email}`);
+      toast("Account has been successfully created");
+    } catch (error) {
+      setMessage("Server Error");
+    }
+    // Continue with submission...
   };
 
   return (
-    <div className="min-h-screen flex flex-col max-w-sm mx-auto">
+    <div className="min-h-screen flex flex-col max-w-md p-4 mx-auto">
       {/* Back Button */}
       <div className="mb-36 flex justify-between">
         <Link
@@ -112,6 +159,18 @@ export default function RegisterPage() {
 
         {confirmPassword && confirmPassword !== password && (
           <p className="text-sm text-red-600">Passwords do not match</p>
+        )}
+
+         {confirmPassword && confirmPassword == password && (password.length < 6)  && (
+          <p className="text-sm text-red-600">Password needs to be atleast 6 letters </p>
+        )}
+
+        {error && (
+            <p className="text-sm text-red-600">Email already exists.  <span> </span>
+            <Link href={'/login'} className="underline">
+             Want to login?
+            </Link>
+            </p>
         )}
 
         <Button

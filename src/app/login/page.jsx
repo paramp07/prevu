@@ -1,23 +1,72 @@
 "use client";
-
+import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FaApple as Apple, FaFacebook as Facebook, FaArrowLeft as ArrowLeft } from "react-icons/fa";
+import {
+  FaApple as Apple,
+  FaFacebook as Facebook,
+  FaArrowLeft as ArrowLeft,
+} from "react-icons/fa";
+import z from "zod";
+
+const loginSchema = z
+  .object({
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { setToken, setUser } = useAuth(); 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password });
+    if (!email || !password)
+      return setError("Please enter both email and password");
+
+    setError("");
+    setMessage("Logging in...");
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ username: email, password }).toString(),
+      });
+
+      const data = await res.json();
+      if (!res.ok)
+        return setMessage(`Login failed: ${data.detail || res.statusText}`);
+
+      setToken(data.access_token);
+      console.log("Token saved to localStorage");
+
+      setMessage("Login successful!");
+      setTimeout(() => {
+        router.push("/upload");
+      }, 50);
+
+      
+    } catch {
+      setMessage("Server error during login");
+    }
   };
 
   return (
-    <div className="min-h-screen  flex flex-col max-w-sm mx-auto">
+    <div className="min-h-screen p-4 flex flex-col max-w-md mx-auto">
       {/* Back Button */}
       <div className="mb-36 flex justify-between">
         <Link
@@ -34,14 +83,19 @@ export default function LoginPage() {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 font-vollkorn mb-2">Login</h1>
+        <h1 className="text-4xl font-bold text-gray-900 font-vollkorn mb-2">
+          Login
+        </h1>
         <p className="text-black/50">Sign in to contribute using the app</p>
       </div>
 
       {/* Login Form */}
       <form onSubmit={handleSubmit} className="space-y-6 mb-8">
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-gray-900 text-base font-medium">
+          <Label
+            htmlFor="email"
+            className="text-gray-900 text-base font-medium"
+          >
             Email
           </Label>
           <Input
@@ -56,7 +110,10 @@ export default function LoginPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-gray-900 text-base font-medium">
+          <Label
+            htmlFor="password"
+            className="text-gray-900 text-base font-medium"
+          >
             Password
           </Label>
           <Input
@@ -69,7 +126,7 @@ export default function LoginPage() {
             required
           />
         </div>
-    
+
         <Button
           type="submit"
           className="w-full bg-primary/80 hover:bg-primary text-white py-3 rounded-full font-medium mt-8"

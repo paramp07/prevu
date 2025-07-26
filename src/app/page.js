@@ -10,9 +10,10 @@ import { FaApple as Apple, FaFacebook as Facebook } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 
+
 export default function Home() {
   return (
-    <div className="min-h-screen  flex flex-col items-center max-w-md mx-auto">
+    <div className="min-h-screen p-4 flex flex-col items-center max-w-md mx-auto">
       {/* Header */}
       <div className="mb-18">
         <h1 className={`text-4xl font-bold text-primary font-vollkorn`}>
@@ -90,6 +91,7 @@ export default function Home() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
+          
         </button>
       </div>
     </div>

@@ -4,65 +4,24 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Bookmark, Star, MapPin, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { MenuItemDetailDialog } from "@/components/large/menu-item";
-
-
-function capitalizeWords(str) {
-  if (!str) return "";
-  return str
-    .toLowerCase()
-    .split(/[\s-]+/)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
 
 export default function RestaurantPage({ params }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
-  const [menu, setMenu] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [canLoad, setCanLoad] = useState(null);
-  const [restaurant, setRestaurant] = useState({
-    name: "Untitled",
-    location: null,
-    image: null, // ✅ Add image field
-  });
 
-  useEffect(() => {
-    const savedDishes = localStorage.getItem("finalDishes");
-    const savedMeta = localStorage.getItem("restaurantMeta");
-
-    if (savedDishes) {
-      const parsedMenu = JSON.parse(savedDishes);
-      setMenu(parsedMenu);
-      console.log("📦 Loaded menu JSON:", parsedMenu);
-    }
-
-    if (savedMeta) {
-      const meta = JSON.parse(savedMeta);
-      setRestaurant({
-        name: capitalizeWords(meta.name) || "Untitled",
-        location: meta.location || null,
-        image: meta.image || null, // ✅ Load the image field
-      });
-      console.log("🏷️ Restaurant meta:", meta);
-    }
-
-    setLoading(false);
-  }, []);
-
-//   const restaurant = {
-//     name: "Rockstar Hibachi",
-//     rating: 4.1,
-//     reviewCount: "320+",
-//     locations: 9,
-//     hours: "4:00 am - 10:00 pm",
-//     description:
-//       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc augue massa, tristique nec mauris vel, vestibulum viverra neque. Sed mi velit, vulputate in mauris ut, hendrerit ut pretium tortor.",
-//     heroImage:
-//       "https://images.unsplash.com/photo-1428660386617-8d277e7deaf2?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YnVyZ2Vyc3xlbnwwfHwwfHx8MA%3D%3D",
-//   };
+  const restaurant = {
+    name: "Rockstar Hibachi",
+    rating: 4.1,
+    reviewCount: "320+",
+    locations: 9,
+    hours: "4:00 am - 10:00 pm",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc augue massa, tristique nec mauris vel, vestibulum viverra neque. Sed mi velit, vulputate in mauris ut, hendrerit ut pretium tortor.",
+    heroImage:
+      "https://images.unsplash.com/photo-1428660386617-8d277e7deaf2?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YnVyZ2Vyc3xlbnwwfHwwfHx8MA%3D%3D",
+  };
 
   const menuSections = [
     {

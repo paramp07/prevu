@@ -2,6 +2,48 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@import "tailwindcss";
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+
+@keyframes slide-up-zoom-out {
+  0% {
+    opacity: 0;
+    transform: translateY(100%) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slide-down-zoom-in {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100%) scale(1.05);
+  }
+}
+
+.animate-dialog-in {
+  animation: slide-up-zoom-out 300ms ease-out forwards;
+}
+
+.animate-dialog-out {
+  animation: slide-down-zoom-in 200ms ease-in forwards;
+}
+
 
 @layer base {
   button, [role="button"] {
@@ -53,6 +95,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  
 }
 :root {
   --radius: 0.625rem;
@@ -147,3 +190,4 @@
     @apply bg-background text-black;
   }
 }
+

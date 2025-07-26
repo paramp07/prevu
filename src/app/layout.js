@@ -1,4 +1,7 @@
-import { Geist, Geist_Mono, Figtree, Vollkorn, Outfit} from "next/font/google";
+import { Geist, Geist_Mono, Figtree, Vollkorn, Outfit } from "next/font/google";
+import { AuthProvider } from "@/context/AuthContext";
+import { Toaster } from "@/components/ui/sonner";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,12 +22,12 @@ const figtree = Figtree({
 const vollkorn = Vollkorn({
   variable: "--font-vollkorn",
   subsets: ["latin"],
-})
+});
 
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
-})
+});
 
 export const metadata = {
   title: "Create Next App",
@@ -35,9 +38,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`antialiased p-4 bg-[#F5F5F5] ${geistSans.className} ${geistMono.className} ${outfit.className} `}
+        className={`antialiased  bg-[#F5F5F5] ${geistSans.className} ${geistMono.className} ${outfit.className} `}
       >
-        {children}
+        <AuthProvider>
+          <main>{children}</main>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
