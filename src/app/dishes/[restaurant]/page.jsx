@@ -32,11 +32,12 @@ export default function RestaurantPage({ params }) {
   useEffect(() => {
     const savedDishes = localStorage.getItem("finalDishes");
     const savedMeta = localStorage.getItem("restaurantMeta");
+    console.log(savedDishes);
 
     if (savedDishes) {
       const parsedMenu = JSON.parse(savedDishes);
       setMenu(parsedMenu);
-      console.log("📦 Loaded menu JSON:", parsedMenu);
+      // console.log("📦 Loaded menu JSON:", parsedMenu);
     }
 
     if (savedMeta) {
@@ -46,7 +47,7 @@ export default function RestaurantPage({ params }) {
         location: meta.location || null,
         image: meta.image || null, // ✅ Load the image field
       });
-      console.log("🏷️ Restaurant meta:", meta);
+      // console.log("🏷️ Restaurant meta:", meta);
     }
 
     setLoading(false);
@@ -139,7 +140,7 @@ export default function RestaurantPage({ params }) {
         {/* Back Button */}
         <div className="mb-36 absolute z-1 p-2 left-2 top-6 flex justify-between">
           <Link
-            href="/"
+            href="/upload"
             className="inline-flex items-center text-gray-900 hover:text-gray-900"
           >
             <Button
