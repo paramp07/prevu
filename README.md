@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Prevu
+Prevu is a modern, intuitive application designed to [insert what your app does — e.g., preview and transform media, streamline event planning, simplify restaurant menu processing, etc.]. With a clean UI and seamless experience, Prevu empowers users to [core value or task your app solves] with speed and clarity.
 
-## Getting Started
+🚀 Features
+📷 Upload and preview [images/videos/menus/other content]
 
-First, run the development server:
+🎨 Apply transformations or enhancements in real time
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+💾 Save or export final results locally or to the cloud
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🧠 Smart enrichment (e.g., auto-tagging, menu item extraction, OCR, etc.)
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+📱 Mobile-first responsive design
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+🔐 Secure user authentication and session management
 
-## Learn More
+📦 Tech Stack
+Frontend: Next.js, React, Tailwind CSS, Framer Motion
 
-To learn more about Next.js, take a look at the following resources:
+Backend: FastAPI (Python), PostgreSQL, SQLAlchemy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+AI/OCR: Google Vertex AI, Tesseract, OpenAI (Gemini/GPT-based models)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Authentication: JWT-based Auth (can plug into Firebase/Auth0)
 
-## Deploy on Vercel
+Hosting: Vercel (Frontend), Render/Fly.io/AWS EC2 (Backend)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Storage: S3 or equivalent for media files
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+🛠️ Installation
+Prerequisites
+Node.js (>= 18)
+
+Python 3.10+
+
+PostgreSQL
+
+pip and npm or yarn
+
+Backend (FastAPI)
+bash
+Copy
+Edit
+# Clone repo
+git clone https://github.com/your-username/prevu.git
+cd prevu/backend
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run FastAPI server
+uvicorn main:app --reload
+Frontend (Next.js)
+bash
+Copy
+Edit
+cd ../frontend
+
+# Install dependencies
+npm install  # or yarn
+
+# Run Next.js app
+npm run dev  # or yarn dev
+⚙️ Environment Variables
+Create .env files in both the /frontend and /backend directories.
+
+.env (Backend)
+env
+Copy
+Edit
+DATABASE_URL=postgresql://user:password@localhost/dbname
+OPENAI_API_KEY=your_key
+JWT_SECRET=your_secret
+.env.local (Frontend)
+env
+Copy
+Edit
+NEXT_PUBLIC_API_URL=http://localhost:8000
+🧪 Testing
+Backend
+bash
+Copy
+Edit
+pytest
+Frontend
+bash
+Copy
+Edit
+npm run test
+📤 Deployment
+Frontend: Easily deploy to Vercel
+
+Backend: Deploy with Render, Fly.io, or containerize with Docker
+
+🧠 Contributing
+We welcome contributions! Please open issues or PRs with fixes, enhancements, or suggestions.
+
+bash
+Copy
+Edit
+git checkout -b feature/your-feature-name
+git commit -m "Add new feature"
+git push origin feature/your-feature-name
